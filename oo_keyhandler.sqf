@@ -19,29 +19,43 @@
 	*/
 
 	#include "oop.h"
+	#include "dik_macro.hpp"
 
 	CLASS("OO_KEYHANDLER")
 		PRIVATE VARIABLE("code","this");
+		PRIVATE VARIABLE("scalar","handler");
 
 		PUBLIC FUNCTION("","constructor") { 
 			DEBUG(#, "OO_KEYHANDLER::constructor")
 			waitUntil {!(isNull (findDisplay 46))};
-			MEMBER("keyHandler", nil);
+			MEMBER("addKeyHandler", nil);
 		};
 
-		PUBLIC FUNCTION("","keyHandler") {
-			DEBUG(#, "OO_KEYHANDLER::keyHandler")
-			(findDisplay 46) displayAddEventHandler ["KeyDown", format[" ['keyCatcher', _this] call %1", MEMBER("this", nil)]];
+		PUBLIC FUNCTION("","addKeyHandler") {
+			DEBUG(#, "OO_KEYHANDLER::addKeyHandler")
+			private _handler = (findDisplay 46) displayAddEventHandler ["KeyDown", format[" ['keyCatcher', _this] call %1", MEMBER("this", nil)]];
+			MEMBER("handler", _handler);
+		};
+
+		PUBLIC FUNCTION("","removeKeyHandler") {
+			DEBUG(#, "OO_KEYHANDLER::removeKeyHandler")
+			(findDisplay 46) displayRemoveEventHandler ["KeyDown", MEMBER("handler", nil)];
 		};
 
 		PUBLIC FUNCTION("array","keyCatcher") {
+			DEBUG(#, "OO_KEYHANDLER::keyCatcher")
+			// _this select 1 = key stroke
+			// _this select 2 = shift stroke
+			// _this select 3 = ctrl stroke
+			// _this select 4 = alt stroke
 			switch (_this select 1) do { 
-				case 17 : { MEMBER("keyUp", nil); }; 
-				case 31 : { MEMBER("keyDown", nil); }; 
-				case 30 : { MEMBER("keyLeft", nil); }; 
-				case 32 : { MEMBER("keyRight", nil); }; 
+				case DIK_UP : { MEMBER("keyUp", nil); }; 
+				case DIK_DOWN : { MEMBER("keyDown", nil); }; 
+				case DIK_LEFT : { MEMBER("keyLeft", nil); }; 
+				case DIK_RIGHT : { MEMBER("keyRight", nil); }; 
 				default {  /*...code...*/ }; 
 			};
+			false;
 		};
 
 		PUBLIC FUNCTION("","keyUp") { hint "UP"; };
@@ -51,6 +65,8 @@
 
 		PUBLIC FUNCTION("","deconstructor") { 
 			DEBUG(#, "OO_KEYHANDLER::deconstructor")
-			DELETE VARIABLE("this");
+			MEMBER("removeKeyHandler", nil);
+			DELETE_VARIABLE("this");
+			DELETE_VARIABLE("handler");
 		};
 	ENDCLASS;
