@@ -17,7 +17,6 @@
 	*/
 
 	#include "oop.h"
-	#include "dik_macro.hpp"
 
 	call compile preprocessFileLineNumbers "oo_keyhandler.sqf";
 	private _keyhandler = NEW(OO_KEYHANDLER, nil);
